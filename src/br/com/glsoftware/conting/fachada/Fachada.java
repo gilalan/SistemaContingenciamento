@@ -7,6 +7,7 @@ import br.com.glsoftware.conting.business.BankInfoController;
 import br.com.glsoftware.conting.business.ClientController;
 import br.com.glsoftware.conting.business.EmployeeController;
 import br.com.glsoftware.conting.business.FunctionController;
+import br.com.glsoftware.conting.business.HistEmployeeController;
 import br.com.glsoftware.conting.business.SchoolingController;
 import br.com.glsoftware.conting.business.StateController;
 import br.com.glsoftware.conting.business.WorkplaceController;
@@ -15,6 +16,7 @@ import br.com.glsoftware.conting.entities.BankInfo;
 import br.com.glsoftware.conting.entities.Client;
 import br.com.glsoftware.conting.entities.Employee;
 import br.com.glsoftware.conting.entities.Function;
+import br.com.glsoftware.conting.entities.HistEmployee;
 import br.com.glsoftware.conting.entities.Schooling;
 import br.com.glsoftware.conting.entities.State;
 import br.com.glsoftware.conting.entities.Workplace;
@@ -33,6 +35,7 @@ public class Fachada implements IFachada {
 	private FunctionController functionController;
 	private SchoolingController schoolingController;
 	private WorkplaceController workplaceController;
+	private HistEmployeeController histEmployeeController;
 	
 	public Fachada (){
 		this.clientController = new ClientController();
@@ -43,6 +46,7 @@ public class Fachada implements IFachada {
 		this.functionController = new FunctionController();
 		this.schoolingController = new SchoolingController();
 		this.workplaceController = new WorkplaceController();
+		this.histEmployeeController = new HistEmployeeController();
 	}
 	
 	@Override
@@ -80,6 +84,12 @@ public class Fachada implements IFachada {
 		
 		this.employeeController.create(employee);
 	}
+	
+	@Override
+	public void createEmployeeBatch(List<Employee> employees) {
+		
+		this.employeeController.createBatch(employees);
+	}
 
 	@Override
 	public void updateEmployee(Employee employee) throws MissingElementException {
@@ -97,6 +107,12 @@ public class Fachada implements IFachada {
 	public Employee searchOneEmployee(String matriculation) throws MissingElementException {
 		
 		return this.employeeController.searchOne(matriculation);
+	}
+	
+	@Override
+	public Employee searchByEmployeeId(long id) throws MissingElementException {
+		
+		return this.employeeController.searchById(id);
 	}
 
 	@Override
@@ -278,5 +294,42 @@ public class Fachada implements IFachada {
 		
 		return this.bankInfoController.searchOne(id);
 	}
+
+	@Override
+	public void createHistEmployee(HistEmployee histEmployee) throws ElementAlreadyExistException {
+		
+		this.histEmployeeController.create(histEmployee);
+	}
+	
+	@Override
+	public void createBatchHistEmployee(List<HistEmployee> histEmployee) throws ElementAlreadyExistException {
+		
+		this.histEmployeeController.createBatch(histEmployee);
+	}
+
+	@Override
+	public void updateHistEmployee(HistEmployee histEmployee) throws MissingElementException {
+		
+		this.histEmployeeController.update(histEmployee);
+	}
+
+	@Override
+	public void deleteHistEmployee(HistEmployee histEmployee) throws MissingElementException {
+		
+		this.histEmployeeController.delete(histEmployee);
+	}
+
+	@Override
+	public HistEmployee searchOneHistEmployee(long id) throws MissingElementException {
+		
+		return this.histEmployeeController.searchOne(id);
+	}
+	
+	@Override
+	public List<HistEmployee> searchHistEmployee(long sollId) throws MissingElementException {
+		
+		return this.histEmployeeController.search(sollId);
+	}
+
 	
 }

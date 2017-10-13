@@ -7,6 +7,7 @@ import br.com.glsoftware.conting.entities.BankInfo;
 import br.com.glsoftware.conting.entities.Client;
 import br.com.glsoftware.conting.entities.Employee;
 import br.com.glsoftware.conting.entities.Function;
+import br.com.glsoftware.conting.entities.HistEmployee;
 import br.com.glsoftware.conting.entities.Schooling;
 import br.com.glsoftware.conting.entities.State;
 import br.com.glsoftware.conting.entities.Workplace;
@@ -33,6 +34,8 @@ public interface IFachada {
 	public void deleteEmployee(Employee employee) throws MissingElementException;
 	
 	public Employee searchOneEmployee(String matriculation) throws MissingElementException;
+	
+	public Employee searchByEmployeeId(long id) throws MissingElementException;
 	
 	public List<Employee> searchEmployees(String name) throws MissingElementException;
 	
@@ -93,5 +96,19 @@ public interface IFachada {
 	public Workplace searchOneWorkplace(String code);
 
 	public List<Workplace> searchWorkplaces(String name);
+	
+	public void createHistEmployee(HistEmployee histEmployee) throws ElementAlreadyExistException;
+	
+	public void createBatchHistEmployee(List<HistEmployee> histEmployee) throws ElementAlreadyExistException;
+	
+	public void updateHistEmployee(HistEmployee histEmployee) throws MissingElementException;
+	
+	public void deleteHistEmployee(HistEmployee histEmployee) throws MissingElementException;
+
+	public HistEmployee searchOneHistEmployee(long id) throws MissingElementException;
+
+	public List<HistEmployee> searchHistEmployee(long sollId) throws MissingElementException;
+
+	public void createEmployeeBatch(List<Employee> employees);	
 
 }

@@ -16,7 +16,11 @@ public interface IEmployeeRepository {
 	
 	public Employee searchOne(String matriculation) throws MissingElementException;
 	
+	public Employee searchById(long id) throws MissingElementException;
+	
 	public List<Employee> search(String name) throws MissingElementException;
 	
 	public List<Employee> searchAll();
+
+	public void createBatch(List<Employee> employees);
 }

@@ -6,6 +6,7 @@ import java.util.Calendar;
 public class Employee {
 	
 	private long id;
+	private long idSoll;
 	private String name;
 	private String matriculation;
 	private String pis;
@@ -21,6 +22,7 @@ public class Employee {
 	
 	public Employee() {
 		
+		this.idSoll = -1;
 	}
 	
 	public Employee(long id, String name, String matriculation, String pis, String cpf, 
@@ -79,6 +81,14 @@ public class Employee {
 	
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public long getIdSoll() {
+		return idSoll;
+	}
+
+	public void setIdSoll(long idSoll) {
+		this.idSoll = idSoll;
 	}
 
 	public String getName() {
@@ -179,10 +189,33 @@ public class Employee {
 
 	public boolean isEmpty() {
 		
-		if (this.matriculation != null && !this.matriculation.isEmpty())
+		if (this.idSoll != -1)
 			return false;
 		
 		return true;
 	}
+	
+	@Override
+    public boolean equals(Object o) {
+
+        if (o == this) return true;
+        if (!(o instanceof Employee)) {
+            return false;
+        }
+
+        Employee employee = (Employee) o;
+
+        return employee.getName().toLowerCase().equals(this.name.toLowerCase()) &&
+                employee.getIdSoll() == this.idSoll;
+    }
+
+    //Idea from effective Java : Item 9
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + this.name.hashCode();
+        result = (int) (31 * result + this.idSoll);
+        return result;
+    }
 
 }

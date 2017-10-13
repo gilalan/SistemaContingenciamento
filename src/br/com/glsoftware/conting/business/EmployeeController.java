@@ -30,6 +30,11 @@ public class EmployeeController {
 		this.employeeRep.create(employee);
 	}
 	
+	public void createBatch(List<Employee> employees) {
+		
+		this.employeeRep.createBatch(employees);
+	}
+	
 	public void update (Employee employee) throws MissingElementException {
 		
 		this.employeeRep.update(employee);
@@ -43,6 +48,11 @@ public class EmployeeController {
 	public Employee searchOne (String matriculation) throws MissingElementException {
 		
 		return this.employeeRep.searchOne(matriculation);
+	}
+	
+	public Employee searchById (long id) throws MissingElementException {
+		
+		return this.employeeRep.searchById(id);
 	}
 	
 	public List<Employee> search (String name) throws MissingElementException {

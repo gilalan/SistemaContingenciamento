@@ -13,9 +13,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,20 +33,17 @@ import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
-import br.com.glsoftware.conting.entities.Bank;
-import br.com.glsoftware.conting.entities.BankInfo;
 import br.com.glsoftware.conting.entities.Employee;
 import br.com.glsoftware.conting.entities.Function;
-import br.com.glsoftware.conting.entities.Schooling;
-import br.com.glsoftware.conting.entities.State;
+import br.com.glsoftware.conting.entities.HistEmployee;
 import br.com.glsoftware.conting.entities.Workplace;
+import br.com.glsoftware.conting.exceptions.ElementAlreadyExistException;
 import br.com.glsoftware.conting.fachada.Fachada;
 import br.com.glsoftware.conting.interfaces.IFachada;
 
@@ -59,6 +56,7 @@ public class MainWindow extends JFrame {
 	private IFachada fachada;
 	private JPanel contentPane;
 	private JTable employeeTable;
+	private File selectedEmployeesFile;
 	SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
 	
 	/**
@@ -94,8 +92,8 @@ public class MainWindow extends JFrame {
 				
 				if (result == JFileChooser.APPROVE_OPTION) {
 				    // user selects a file
-					File selectedFile = fileChooser.getSelectedFile();
-					readExcelFile(selectedFile);
+					selectedEmployeesFile = fileChooser.getSelectedFile();
+					readExcelFile(selectedEmployeesFile);
 				}
 			}
 		});
@@ -151,6 +149,35 @@ public class MainWindow extends JFrame {
 				System.exit(0);
 			}
 		});
+		
+		JMenuItem mntmImportarHistricoDe = new JMenuItem("Importar Hist\u00F3rico de Func.");
+		mntmImportarHistricoDe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (selectedEmployeesFile != null){
+					
+					readExcelFile(selectedEmployeesFile);
+					
+				} else {
+					JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+				    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+				    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				        //".xls and .xlsx excel files", "xls", "xlsx");
+			    		".xls excel files", "xls");
+				    fileChooser.setFileFilter(filter);
+					int result = fileChooser.showOpenDialog(contentPane.getParent());
+					
+					if (result == JFileChooser.APPROVE_OPTION) {
+					    // user selects a file
+						//File selectedFile = fileChooser.getSelectedFile();
+						selectedEmployeesFile = fileChooser.getSelectedFile();
+						readExcelFile(selectedEmployeesFile);
+					}
+				}
+			}
+		});
+		mnArquivo.add(mntmImportarHistricoDe);
 		mnArquivo.add(mntmSair);
 		
 		JMenu mnFuncionrios = new JMenu("Funcion\u00E1rios");
@@ -161,26 +188,42 @@ public class MainWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				//JOptionPane.showMessageDialog(null, "Eggs are not supposed to be green.");
 				List<Employee> employees = fachada.searchAll();
-				String cols[] = {"Matrícula", "Nome", "PIS", "CPF", 
-						"Função", "Cód Depto", "Depto", 
-						"UF", "Data Admissão", "Data Nasc." };
-
+//				String cols[] = {"Matrícula", "Nome", "PIS", "CPF", 
+//						"Função", "Cód Depto", "Depto", 
+//						"UF", "Data Admissão", "Data Nasc." };
+//
+//				DefaultTableModel tableModel = new DefaultTableModel(cols, 0);
+//				employeeTable.setModel(tableModel);
+//
+//				//Object[] objs = {1, "Arsenal", 35, 11, 2, 2, 15, 30, 11, 19};
+//				for (Employee emp : employees){
+//					Object[] row = {
+//							emp.getMatriculation(), 
+//							emp.getName(),
+//							emp.getPis(),
+//							emp.getCpf(),
+//							emp.getFunction().getName(),
+//							emp.getWorkplace().getCode(),
+//							emp.getWorkplace().getName(),
+//							emp.getState().getAbbrev(),
+//							format1.format(emp.getAdmissionDate().getTime()),
+//							format1.format(emp.getBirthday().getTime())};
+//					tableModel.addRow(row);
+//				}
+				
+				//String cols[] = {"Matrícula", "Nome", "ID_SOLL" };
+				String cols[] = {"Nome", "ID_SOLL" };
+				
 				DefaultTableModel tableModel = new DefaultTableModel(cols, 0);
 				employeeTable.setModel(tableModel);
 
 				//Object[] objs = {1, "Arsenal", 35, 11, 2, 2, 15, 30, 11, 19};
 				for (Employee emp : employees){
 					Object[] row = {
-							emp.getMatriculation(), 
+							//emp.getMatriculation(),
 							emp.getName(),
-							emp.getPis(),
-							emp.getCpf(),
-							emp.getFunction().getName(),
-							emp.getWorkplace().getCode(),
-							emp.getWorkplace().getName(),
-							emp.getState().getAbbrev(),
-							format1.format(emp.getAdmissionDate().getTime()),
-							format1.format(emp.getBirthday().getTime())};
+							emp.getIdSoll()
+							};
 					tableModel.addRow(row);
 				}
 				
@@ -233,7 +276,7 @@ public class MainWindow extends JFrame {
 		
 		JPanel panelSearchFunc = new JPanel();
 		contentPane.add(panelSearchFunc, "employeesSearch");
-	}
+	}	
 	
 	/*
 	 * Read excel employee file
@@ -241,14 +284,14 @@ public class MainWindow extends JFrame {
 	 */
 	private void readExcelFile(File selectedFile){
 		
-		List<Employee> excelEmployees;
-		List<BankInfo> excelBankInfos;
+		Set<Employee> excelEmployees;
+		List<HistEmployee> excelHistEmployee;
 		FileInputStream fis;
 		HSSFWorkbook wb = null;
 		try {
 			
-			excelEmployees = new ArrayList<Employee>();
-			excelBankInfos = new ArrayList<BankInfo>();
+			excelEmployees = new HashSet<Employee>();
+			excelHistEmployee = new ArrayList<HistEmployee>();
 			fis = new FileInputStream(selectedFile);
 			System.out.println("Selected file: " + selectedFile.getAbsolutePath());
 			
@@ -258,36 +301,47 @@ public class MainWindow extends JFrame {
 		    //HSSFCell cell;
 			//System.out.println("WorkBook: " + wb.getNameAt(0));
 			System.out.println("Sheet: " + sheet.getSheetName());
+			HistEmployee histEmployee;
 			Employee employee;
-			BankInfo bankInfo;
+			//BankInfo bankInfo;
 			
 		    for(Row row : sheet) {
 		    	employee = new Employee();
-		    	bankInfo = new BankInfo();
+		    	histEmployee = new HistEmployee(employee);
 		    	
 		    	System.out.println("Row Number: " + row.getRowNum());
 		    	if (!isHeaderOrEmptyRow(row)){
 			        for (Cell cell : row){
 		                if(cell != null) {
-		                	if (cell.getCellTypeEnum() != CellType.BLANK)
-	                				checkPositionAttributes(cell, employee, bankInfo);
+		                	if (cell.getCellTypeEnum() != CellType.BLANK){
+		                		//System.out.println("Cell type: " + cell.getCellTypeEnum());
+                				checkPositionAttributes(cell, histEmployee);
+		                	}
 	                		
 		                }
 			        }//for cell
 		    	}
 		        if (!employee.isEmpty()){
 			        excelEmployees.add(employee);
-			        bankInfo.setEmployee(employee);
-			        excelBankInfos.add(bankInfo);
+			        excelHistEmployee.add(histEmployee);
 		        }
-		        //System.out.println(); - 
+		        //System.out.println(); 
 		    }
-//		    for (Employee emp : excelEmployees) {
-//		    	System.out.println("Nome: " + emp.getName());
-//		    	System.out.println("Admission: " + format1.format(emp.getAdmissionDate().getTime()));
+//		    for (HistEmployee hemp : excelHistEmployee) {
+//		    	System.out.println("Nome: " + hemp.getEmployee().getName());
+//		    	System.out.println("Período: " + hemp.getBaseMonth() + "/" + hemp.getBaseYear());
+//		    	System.out.println("Depto: " + hemp.getDptoCode());
 //		    }
-		    System.out.println("###### Size Employees: " + excelEmployees.size());
-		    System.out.println("###### Size BankInfos: " + excelBankInfos.size());
+		   // for (Employee emp : excelEmployees) {
+		    //	System.out.println("Nome: " + emp.getName());
+		    	//System.out.println("ID Soll: " + emp.getIdSoll());
+		    //}
+		    //System.out.println("###### Size Employees: " + excelEmployees.size());
+		    //System.out.println("###### Size HistEmployees: " + excelHistEmployee.size());
+		    
+		    List<Employee> emps = new ArrayList<Employee>(excelEmployees);
+		    fachada.createEmployeeBatch(emps);//Criar os funcionários em batch
+		    fachada.createBatchHistEmployee(excelHistEmployee);
 		    
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -295,6 +349,9 @@ public class MainWindow extends JFrame {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		} catch (ElementAlreadyExistException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} finally {
 			
 			if (wb != null)
@@ -329,25 +386,26 @@ public class MainWindow extends JFrame {
 		    //HSSFCell cell;
 			//System.out.println("WorkBook: " + wb.getNameAt(0));
 			System.out.println("Sheet: " + sheet.getSheetName());
-			Function function;
+			//Function function;
 			
 		    for(Row row : sheet) {
-		    	function = new Function();
+		    	//function = new Function();
 		    	
 		    	System.out.println("Row Number: " + row.getRowNum());
-		    	if (!isHeaderOrEmptySingleColumn(row, "Função")){
+		    	if (!isHeaderOrEmptySingleColumn(row, "ID")){
 			        for (Cell cell : row){
 		                if(cell != null) {
 		                	if (cell.getCellTypeEnum() != CellType.BLANK)
-                				function.setName(cell.getStringCellValue());
+                				//function.setName(cell.getStringCellValue());
+		                		System.out.println("MAINWINDOW");
 	                		
 		                }
 			        }//for cell
 		    	}
-		        if (!function.isEmpty()){
-			        excelFunctions.add(function);
-			        excelSetFunctions.add(function);
-		        }
+//		        if (!function.isEmpty()){
+//			        excelFunctions.add(function);
+//			        excelSetFunctions.add(function);
+//		        }
 		        //System.out.println(); - 
 		    }
 		    for (Function fun : excelFunctions) {
@@ -463,12 +521,12 @@ public class MainWindow extends JFrame {
 		
 		int count = 0;
 		String[] headerCols = {
-				"",
-				"matricula",
-				"nome",
-				"função",
-				"cod departamento",
-				"nome departamento"
+				"ID",
+				"NOME",
+				"CODDEPARTAMENTO",
+				"REMUNERACAO",
+				"HIST_MES",
+				"HIST_ANO"
 		};//verifica apenas as 6 primeiras colunas...
 		if (row != null){
 			
@@ -477,12 +535,17 @@ public class MainWindow extends JFrame {
 				if (row.getCell(i) == null)
 					count++;
 				else{
-					if (row.getCell(i).getCellTypeEnum() == CellType.BLANK || 
-						row.getCell(i).getStringCellValue().toLowerCase().equals(headerCols[i]))
-						count++;
+					if (row.getCell(i).getCellTypeEnum() == CellType.BLANK){
+						count++; 
+					}
+					else {
+						if (row.getCell(i).getCellTypeEnum() == CellType.STRING && 
+							row.getCell(i).getStringCellValue().toUpperCase().equals(headerCols[i]))						
+							count++;
+					}
 				}				
 			}
-			
+			//System.out.println("Count de isHeaderOrEmpty: " + count);
 			if (count >= 4){
 				return true;
 			}
@@ -517,63 +580,46 @@ public class MainWindow extends JFrame {
 		}
 	}
 	
-	private void checkPositionAttributes(Cell cell, Employee employee, BankInfo bankInfo) {
+	private void checkPositionAttributes(Cell cell, HistEmployee histEmployee) {
+		
 		int columnIndex = cell.getColumnIndex();
 		//System.out.println("row " + cell.getRowIndex());
-		//Posição 0 => Matrícula
+		
+		//Posição 0 => ID_SOLL (Numeric)
 		if (columnIndex == 0){
-			employee.setMatriculation(cell.getStringCellValue());
-		} else if (columnIndex == 2) { //Nome do Funcionário
-			employee.setName(cell.getStringCellValue());
-		} else if (columnIndex == 3) { //Função - Nome
-			employee.setFunction(new Function(cell.getStringCellValue()));
-		} else if (columnIndex == 4) { //Departamento - Cód
-			employee.setWorkplace(new Workplace(cell.getStringCellValue()));
-		} else if (columnIndex == 5) { //Departamento - Nome
-			if (employee.getWorkplace() == null){
-				employee.setWorkplace(new Workplace(cell.getStringCellValue()));
-			} else {
-				(employee.getWorkplace()).setName(cell.getStringCellValue());
+			histEmployee.getEmployee().setIdSoll( Long.valueOf((long) cell.getNumericCellValue()) );
+		} else if (columnIndex == 1) { //Nome do Funcionário (String)
+			histEmployee.getEmployee().setName(cell.getStringCellValue());
+		} else if (columnIndex == 2) { //Cod Depto (xxx.xxx.xxx.xxx) tem q dividir em 4 faixas
+			long codDepto = (long) cell.getNumericCellValue();
+			String strCodDepto = "" + codDepto;
+			//Preenche o codDepto para ficar no formato de 3 dígitos xxx.xxx
+			if (strCodDepto.length() % 3 == 2) {
+				strCodDepto = "0".concat(strCodDepto);
+			} else if (strCodDepto.length() % 3 == 1) {
+				strCodDepto = "00".concat(strCodDepto);
 			}
-		} else if (columnIndex == 6) { //Data Admissão
-			if (HSSFDateUtil.isCellDateFormatted(cell)){
-				Calendar cal = Calendar.getInstance();
-    			//System.out.println(cell.getDateCellValue());
-    			cal.setTime(cell.getDateCellValue());
-    			employee.setAdmissionDate(cal);
-			}
-		} else if (columnIndex == 7) { //UF - abrev
-			employee.setState(new State(cell.getStringCellValue()));
-		} else if (columnIndex == 8) { //Data Nascimento
-			if (HSSFDateUtil.isCellDateFormatted(cell)){
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(cell.getDateCellValue());
-				employee.setBirthday(cal);
-			}
-		} else if (columnIndex == 9) { //PIS
-			employee.setPis(cell.getStringCellValue());
-		} else if (columnIndex == 12) { //CPF
-			employee.setCpf(cell.getStringCellValue());
-		} else if (columnIndex == 13) { //(Informação Bancária) Nome Banco
-			bankInfo.setBank(new Bank(cell.getStringCellValue()));
-		} else if (columnIndex == 14) { //(Informação Bancária) Cód. Banco
-			if (bankInfo.getBank() == null){
-				bankInfo.setBank(new Bank());				
-			} 
-			(bankInfo.getBank()).setCode(cell.getStringCellValue());
-		} else if (columnIndex == 15) { //(Informação Bancária) Agência
-			bankInfo.setAgency(cell.getStringCellValue());
-		} else if (columnIndex == 16) { //(Informação Bancária) Conta
-			bankInfo.setAccount(cell.getStringCellValue());
-		} else if (columnIndex == 17) { //(Informação Bancária) DV
-			String dv = cell.getStringCellValue();
-			if (dv.length() > 0)
-				bankInfo.setVd(dv.charAt(0));
-		} else if (columnIndex == 18) { //Salário
-			employee.setSalary(BigDecimal.valueOf(cell.getNumericCellValue()));
-		} else if (columnIndex == 19) { //Escolaridade
-			employee.setSchooling(new Schooling(cell.getStringCellValue()));
-		}
+			histEmployee.setDptoCode(strCodDepto);
+		} else if (columnIndex == 3) { //Salário base
+			histEmployee.setBaseSalary(BigDecimal.valueOf(cell.getNumericCellValue()));
+		} else if (columnIndex == 4) { //Mês base
+			DecimalFormat decimalFormat = new DecimalFormat("#");
+	        String numberAsString = decimalFormat.format(cell.getNumericCellValue());
+			histEmployee.setBaseMonth(numberAsString);
+		} else if (columnIndex == 5) { //Ano base
+			DecimalFormat decimalFormat = new DecimalFormat("#");
+	        String numberAsString = decimalFormat.format(cell.getNumericCellValue());
+			histEmployee.setBaseYear(numberAsString);
+		} 
+		
+//		else if (columnIndex == 6) { //Data Admissão
+//			if (HSSFDateUtil.isCellDateFormatted(cell)){
+//				Calendar cal = Calendar.getInstance();
+//    			//System.out.println(cell.getDateCellValue());
+//    			cal.setTime(cell.getDateCellValue());
+//    			employee.setAdmissionDate(cal);
+//			}
+//		} 
 	}
 
 	/**
