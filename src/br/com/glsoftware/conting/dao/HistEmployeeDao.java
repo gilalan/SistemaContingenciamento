@@ -69,6 +69,9 @@ public class HistEmployeeDao implements IHistEmployeeRepository{
 		
 		String sql_select = "SELECT id FROM funcionario WHERE id_soll=?";
 		
+		String sql_select_hist = "SELECT id FROM historico_funcionario WHERE "
+				+ "id_funcionario=? AND mes=? AND ano=? AND codigo_depto=?";
+		
 		String sql = "insert into historico_funcionario " +
 	             "(id_funcionario,mes,ano,salario,codigo_depto) "
 	             + "values (?,?,?,?,?)";
@@ -87,6 +90,7 @@ public class HistEmployeeDao implements IHistEmployeeRepository{
 	     try {
 	         // prepared statement para inserção
 	    	 PreparedStatement stmtSelect = connection.prepareStatement(sql_select);
+	    	 PreparedStatement stmtSelectHist = connection.prepareStatement(sql_select_hist);
 	         PreparedStatement stmt = connection.prepareStatement(sql,
                     Statement.RETURN_GENERATED_KEYS);
 	         
@@ -98,18 +102,25 @@ public class HistEmployeeDao implements IHistEmployeeRepository{
 	        	idSoll = hemp.getEmployee().getIdSoll();
 	        	stmtSelect.setLong(1, idSoll);
 	        	rsSelect = stmtSelect.executeQuery();
-	        	//idEmployee = 
-	        	//stmt.setLong(1, hemp.getEmployee().getId());
+	        	long idFuncionario = -1;
+	        	//Se encontrar um funcionário com esse IDSoll já cadastrado
 	        	if (rsSelect.next()){
-	        		stmt.setLong(1, rsSelect.getLong("id"));	        		
-	        	} else {
-	        		System.out.println("Funcionário não encontrado");
-	        	}
-	 			stmt.setString(2, hemp.getBaseMonth());
-	 			stmt.setString(3, hemp.getBaseYear());
-	 			stmt.setBigDecimal(4, hemp.getBaseSalary());
-	 			stmt.setString(5, hemp.getDptoCode());
-	 			stmt.addBatch();
+	        		//stmt.setLong(1, rsSelect.getLong("id"));
+	        		idFuncionario = rsSelect.getLong("id");
+	        		stmtSelectHist.setLong(1, idFuncionario);
+	        		stmtSelectHist.setString(2, hemp.getBaseMonth());
+	        		stmtSelectHist.setString(3, hemp.getBaseYear());
+	        		stmtSelectHist.setString(4, hemp.getDptoCode());
+	        		rsSelect = stmtSelectHist.executeQuery();
+	        		if (!rsSelect.next()){
+	        			stmt.setLong(1, idFuncionario);
+	        			stmt.setString(2, hemp.getBaseMonth());
+	    	 			stmt.setString(3, hemp.getBaseYear());
+	    	 			stmt.setBigDecimal(4, hemp.getBaseSalary());
+	    	 			stmt.setString(5, hemp.getDptoCode());
+	    	 			stmt.addBatch();
+	        		}
+	        	} 	 			
 	 		}
 	 		stmt.executeBatch();
 	 		ResultSet rs = stmt.getGeneratedKeys();
@@ -119,6 +130,7 @@ public class HistEmployeeDao implements IHistEmployeeRepository{
 	        	System.out.println("Id gerado: " + id);
 	 		} 
 	 		stmtSelect.close();
+	 		stmtSelectHist.close();
 	 		stmt.close();
 	         
 	     } catch (SQLException e) {

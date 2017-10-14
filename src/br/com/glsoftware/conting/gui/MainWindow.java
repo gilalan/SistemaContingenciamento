@@ -350,9 +350,10 @@ public class MainWindow extends JFrame {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (ElementAlreadyExistException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
-		} finally {
+		} 
+		finally {
 			
 			if (wb != null)
 				try {

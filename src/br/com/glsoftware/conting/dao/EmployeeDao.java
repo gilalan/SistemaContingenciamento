@@ -92,26 +92,48 @@ public class EmployeeDao implements IEmployeeRepository{
 		String sql = "insert into funcionario " +
 	             "(nome,id_soll) values (?,?)";
 		
+		String SQL_SELECT = "SELECT id FROM funcionario "
+				+ "WHERE id_soll=?";
+		
+//		String SQL_INSERT_WITH_SELECT = 
+//				"INSERT INTO funcionario (nome,id_soll) "
+//				+ "SELECT nome,id_soll FROM funcionario "
+//				+ "WHERE NOT EXISTS "
+//				+ "(SELECT nome,id_soll FROM funcionario WHERE id_soll=?)";
+		
 	     try {
 	         // prepared statement para inserção
-	         PreparedStatement stmt = connection.prepareStatement(sql,
-                     Statement.RETURN_GENERATED_KEYS);
+	    	 PreparedStatement stmt_sel = connection.prepareStatement(SQL_SELECT);
+	         PreparedStatement stmt = connection.prepareStatement(sql);
+	        
+	         ResultSet rs = null;	         
+	         int rowsAffected = 0;
 	         
-	        for (Employee employee: employees) {
-
-	        	stmt.setString(1, employee.getName());
-	 			stmt.setLong(2, employee.getIdSoll());
-	 			stmt.addBatch();
+	         for (Employee employee: employees) {
+	        	
+	        	 stmt_sel.setLong(1, employee.getIdSoll());
+	        	 rs = stmt_sel.executeQuery();
+	        	 if (!rs.next()){	        		 
+	        		 stmt.setString(1, employee.getName());
+	        		 stmt.setLong(2, employee.getIdSoll());
+	        		 rowsAffected = stmt.executeUpdate();
+	        		 if (rowsAffected > 0){
+	        			 //long id = rs.getLong(1);
+	        			 System.out.println("Conseguiu salvar: ");
+	        		 }	        		 
+	        	 }
+	 			//stmt.addBatch();
 	 		}
 	        
-	 		stmt.executeBatch();
-	 		ResultSet rs = stmt.getGeneratedKeys();
-	 		while (rs.next()) {
-	        	 	 			
-	        	long id = rs.getLong(1);
-	        	System.out.println("Id gerado: " + id);
-	 		} 
-	 		stmt.close();
+	 		//stmt.executeBatch();
+	 		//ResultSet rs = stmt.getGeneratedKeys();
+//	 		while (rs.next()) {
+//	        	 	 			
+//	        	long id = rs.getLong(1);
+//	        	System.out.println("Id gerado: " + id);
+//	 		} 
+	         stmt_sel.close();
+	 		 stmt.close();
 	         
 	     } catch (SQLException e) {
 	    	 
